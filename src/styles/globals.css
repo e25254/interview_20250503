@@ -1,0 +1,38 @@
+@import "tailwindcss";
+:root {
+  --color-gray-100: #f0f4f8;
+  --color-gray-200: #8698aa;
+  --color-blue-700: #1e3059;
+  --color-blue-900: #131b29;
+  --color-green-300: rgba(16, 186, 104, 0.12);
+  --color-green-400: rgba(0, 177, 93, 0.5);
+  --color-green-500: #00b15d;
+  --color-red-400: rgba(255, 91, 90, 0.5);
+  --color-red-300: rgba(255, 90, 90, 0.12);
+  --color-red-500: #ff5b5a;
+}
+
+@theme inline {
+  --color-background: var(--color-blue-900);
+  --color-text-default: var(--color-gray-100);
+  --color-quote-head: var(--color-gray-200);
+  --color-buy-price: var(--color-green-500);
+  --color-sell-price: var(--color-red-500);
+  --color-row-hover: var(--color-blue-700);
+  --color-buy-size-bar: var(--color-green-300);
+  --color-sell-size-bar: var(--color-red-300);
+  --color-flash-green: var(--color-green-400);
+  --color-flash-red: var(--color-red-400);
+}
+
+body {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  background: var(--color-background);
+  color: var(--color-text-default);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
