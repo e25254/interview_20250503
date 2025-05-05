@@ -1,5 +1,11 @@
+import Stack from "@/components/Stack";
+import Table from "@/components/Table";
 function App() {
-  return <div>Hello from Vite with Path Alias!</div>;
+  return (
+    <Stack>
+      <Table />
+    </Stack>
+  );
 }
 
 export default App;

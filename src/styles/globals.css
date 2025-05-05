@@ -35,4 +35,7 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  * {
+    outline: 0.01px solid rgba(248, 0, 0, 0.196);
+  }
 }
