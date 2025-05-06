@@ -10,6 +10,7 @@
   --color-red-400: rgba(255, 91, 90, 0.5);
   --color-red-300: rgba(255, 90, 90, 0.12);
   --color-red-500: #ff5b5a;
+  --spacing-hor-container: 1rem;
 }
 
 @theme inline {
@@ -23,6 +24,7 @@
   --color-sell-size-bar: var(--color-red-300);
   --color-flash-green: var(--color-green-400);
   --color-flash-red: var(--color-red-400);
+  --spacing-hor-container: var(--spacing-hor-container);
 }
 
 body {
