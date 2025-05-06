@@ -1,13 +1,4 @@
-import { CSSProperties } from "react";
-
-type TextAlign = CSSProperties["textAlign"];
-
-interface ColumnConfig {
-  key: string;
-  title: string;
-  width: string;
-  align: TextAlign;
-}
+import type { ColumnConfig } from "@/types";
 
 interface TableProps {
   columns: ColumnConfig[];

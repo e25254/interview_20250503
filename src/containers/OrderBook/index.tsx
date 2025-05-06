@@ -1,3 +1,9 @@
+import Stack from "@/components/Stack";
+import Quotes from "@/modules/Quotes";
 export default function OrderBook() {
-  return <div>index</div>;
+  return (
+    <Stack>
+      <Quotes />
+    </Stack>
+  );
 }

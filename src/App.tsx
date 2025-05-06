@@ -1,11 +1,6 @@
-import Stack from "@/components/Stack";
-import Table from "@/components/Table";
+import OrderBook from "./containers/OrderBook";
 function App() {
-  return (
-    <Stack>
-      <Table />
-    </Stack>
-  );
+  return <OrderBook />;
 }
 
 export default App;
