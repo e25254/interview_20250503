@@ -1,10 +1,10 @@
 import React, { forwardRef } from "react";
 
-interface StackProps {
+type StackProps = {
   children?: React.ReactNode;
   className?: string;
   ref?: React.Ref<HTMLDivElement>;
-}
+};
 
 const Stack = forwardRef(function Stack(
   { children = null, className = "" }: StackProps,

@@ -1,9 +1,10 @@
 import type { ColumnConfig } from "@/types";
 
-interface TableProps {
+type TableProps = {
   columns: ColumnConfig[];
   data: Record<string, string>[];
-}
+  isShowColumns?: boolean;
+};
 
 export default function Table({
   columns = [
@@ -25,6 +26,7 @@ export default function Table({
       c: "c812312312312312312312312c812312312312312312312312c812312312312312312312312c812312312312312312312312",
     },
   ],
+  isShowColumns = true,
 }: TableProps) {
   return (
     <table className="w-full border-collapse table-fixed">
@@ -33,36 +35,42 @@ export default function Table({
           <col key={column.key} style={{ width: column.width }} />
         ))}
       </colgroup>
-      <thead>
-        <tr>
-          {columns.map((column) => (
-            <th
-              key={column.key}
-              className="truncate"
-              style={{ textAlign: column.align }}
-            >
-              {column.title}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, rowIndex) => (
-          <tr key={rowIndex}>
+      {isShowColumns && (
+        <thead>
+          <tr>
             {columns.map((column) => (
-              <td
-                key={`${rowIndex}-${column.key}`}
-                className="truncate"
-                style={{
-                  maxWidth: column.width,
-                  textAlign: column.align,
-                }}
-                title={row[column.key]}
+              <th
+                key={column.key}
+                className="truncate text-xl text-quote-head font-normal"
+                style={{ textAlign: column.align }}
               >
-                {row[column.key]}
-              </td>
+                {column.title}
+              </th>
             ))}
           </tr>
+        </thead>
+      )}
+      <tbody>
+        {isShowColumns && <tr className="h-3" />}
+        {data.map((row, rowIndex) => (
+          <>
+            {rowIndex > 0 && <tr className="h-1" />}
+            <tr key={rowIndex} className="h-7.5">
+              {columns.map((column) => (
+                <td
+                  key={`${rowIndex}-${column.key}`}
+                  className="truncate text-sm"
+                  style={{
+                    maxWidth: column.width,
+                    textAlign: column.align,
+                  }}
+                  title={row[column.key]}
+                >
+                  {row[column.key]}
+                </td>
+              ))}
+            </tr>
+          </>
         ))}
       </tbody>
     </table>

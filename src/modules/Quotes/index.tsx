@@ -1,10 +1,12 @@
 import Table from "@/components/Table";
+import Stack from "@/components/Stack";
 import type { ColumnConfig } from "@/types";
+import NowPrice from "@/components/NowPrice";
 
 const columns: ColumnConfig[] = [
-  { key: "a", title: "Price(USD)", width: "28%", align: "left" },
-  { key: "b", title: "Size", width: "26%", align: "right" },
-  { key: "c", title: "Total", width: "46%", align: "right" },
+  { key: "a", title: "Price(USD)", width: "30%", align: "left" },
+  { key: "b", title: "Size", width: "25%", align: "right" },
+  { key: "c", title: "Total", width: "45%", align: "right" },
 ];
 
 const data: Record<string, string>[] = [
@@ -23,5 +25,15 @@ const data: Record<string, string>[] = [
 ];
 
 export default function Quotes() {
-  return <Table columns={columns} data={data} />;
+  return (
+    <Stack className="gap-1.5">
+      <Stack className="px-hor-container">
+        <Table columns={columns} data={data} />
+      </Stack>
+      <NowPrice price={100} />
+      <Stack className="px-hor-container">
+        <Table columns={columns} data={data} isShowColumns={false} />
+      </Stack>
+    </Stack>
+  );
 }

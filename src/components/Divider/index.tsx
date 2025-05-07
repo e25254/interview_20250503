@@ -1,7 +1,7 @@
-interface DividerProps {
+type DividerProps = {
   className?: string;
   orientation?: "horizontal" | "vertical";
-}
+};
 
 export default function Divider({
   className = "",
