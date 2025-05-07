@@ -4,14 +4,16 @@ import Quotes from "@/modules/Quotes";
 import useOrderBook from "./useOrderBook";
 
 export default function OrderBook() {
-  const { subscribeData } = useOrderBook();
+  const { subscribeData, mockDelay } = useOrderBook();
   return (
     <Stack>
-      <Stack className="py-2 px-hor-container">
-        <h1 className="text-2xl font-bold">Order Book</h1>
+      <Stack className="py-2.5 px-hor-container">
+        <h1 className="text-2xl font-bold" onClick={mockDelay}>
+          Order Book
+        </h1>
       </Stack>
       <Divider />
-      <Stack className="py-2">
+      <Stack className="py-1.5">
         <Quotes data={subscribeData} />
       </Stack>
     </Stack>
