@@ -1,4 +1,5 @@
 import type { ColumnConfig } from "@/types";
+import { Fragment } from "react/jsx-runtime";
 
 type TableProps = {
   columns: ColumnConfig[];
@@ -53,13 +54,13 @@ export default function Table({
       <tbody>
         {isShowColumns && <tr className="h-3" />}
         {data.map((row, rowIndex) => (
-          <>
+          <Fragment key={rowIndex}>
             {rowIndex > 0 && <tr className="h-1" />}
             <tr key={rowIndex} className="h-7.5">
               {columns.map((column) => (
                 <td
                   key={`${rowIndex}-${column.key}`}
-                  className="truncate text-sm"
+                  className="truncate text-lg font-bold"
                   style={{
                     maxWidth: column.width,
                     textAlign: column.align,
@@ -70,7 +71,7 @@ export default function Table({
                 </td>
               ))}
             </tr>
-          </>
+          </Fragment>
         ))}
       </tbody>
     </table>
