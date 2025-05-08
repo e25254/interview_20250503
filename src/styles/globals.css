@@ -38,6 +38,27 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   * {
-    outline: 0.01px solid rgba(0, 248, 8, 0.196);
+    /* outline: 0.01px solid rgba(0, 248, 8, 0.196); */
+  }
+}
+
+.flash-animation-green {
+  animation: flash 0.3s ease-in-out;
+  --flash-color: var(--color-flash-green);
+}
+
+.flash-animation-red {
+  animation: flash 0.3s ease-in-out;
+  --flash-color: var(--color-flash-red);
+}
+
+@keyframes flash {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+    background-color: var(--flash-color);
   }
 }

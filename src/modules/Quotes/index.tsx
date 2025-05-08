@@ -17,11 +17,16 @@ export default function Quotes({ data }: QuotesProps) {
   return (
     <Stack className="gap-2">
       <Stack className="px-hor-container">
-        <Table columns={columns} data={data.asks} />
+        <Table columns={columns} data={data.asks} flashColor="red" />
       </Stack>
       <NowPrice price={100} />
       <Stack className="px-hor-container">
-        <Table columns={columns} data={data.bids} isShowColumns={false} />
+        <Table
+          columns={columns}
+          data={data.bids}
+          isShowColumns={false}
+          flashColor="green"
+        />
       </Stack>
     </Stack>
   );

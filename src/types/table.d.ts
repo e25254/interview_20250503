@@ -7,3 +7,5 @@ export type ColumnConfig = {
   width: string;
   align: TextAlign;
 };
+
+export type FlashColorType = "green" | "red";

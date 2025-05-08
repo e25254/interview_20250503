@@ -1,6 +1,7 @@
 import useWebSocketConnect from "@/hooks/useWebSocketConnect";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatSnapshotData } from "./utils";
+import throttle from "lodash/throttle";
 import type {
   OrderBookData,
   OrderBookFormatData,
@@ -14,6 +15,13 @@ export default function useOrderBook() {
     bids: [],
     asks: [],
   });
+
+  const tempDataRef = useRef<OrderBookFormatData>({
+    bids: [],
+    asks: [],
+  });
+
+  const THROTTLE_DELAY = 200;
 
   const rawOrderBookRef = useRef<{
     bids: Map<string, string>;
@@ -37,6 +45,14 @@ export default function useOrderBook() {
     []
   );
 
+  const throttledUpdate = useMemo(
+    () =>
+      throttle(() => {
+        setSubscribeData(tempDataRef.current);
+      }, THROTTLE_DELAY),
+    [THROTTLE_DELAY]
+  );
+
   const handleSnapshot = useCallback(
     (orderBookData: OrderBookData) => {
       if (orderBookData.seqNum) preSeqNumRef.current = orderBookData.seqNum;
@@ -51,26 +67,27 @@ export default function useOrderBook() {
         processOrderBookEntries(orderBookData.asks, "asks");
       }
 
-      setSubscribeData(formatSnapshotData(orderBookData));
+      tempDataRef.current = formatSnapshotData(orderBookData);
+      throttledUpdate();
     },
-    [processOrderBookEntries]
+    [processOrderBookEntries, throttledUpdate]
   );
 
   const updateOrderBook = useCallback(() => {
-    const bids: OrderBookEntry[] = Array.from(rawOrderBookRef.current.bids).map(
-      ([price, size]) => [price, size]
-    );
-    const asks: OrderBookEntry[] = Array.from(rawOrderBookRef.current.asks).map(
-      ([price, size]) => [price, size]
-    );
-    setSubscribeData(
-      formatSnapshotData({
-        type: "snapshot",
-        bids,
-        asks,
-      })
-    );
-  }, []);
+    const bids: OrderBookEntry[] = Array.from(rawOrderBookRef.current.bids)
+      .map(([price, size]): OrderBookEntry => [price, size])
+      .sort((a, b) => Number(b[0]) - Number(a[0]));
+    const asks: OrderBookEntry[] = Array.from(rawOrderBookRef.current.asks)
+      .map(([price, size]): OrderBookEntry => [price, size])
+      .sort((a, b) => Number(b[0]) - Number(a[0]));
+
+    tempDataRef.current = formatSnapshotData({
+      type: "snapshot",
+      bids,
+      asks,
+    });
+    throttledUpdate();
+  }, [throttledUpdate]);
 
   const handleDelta = useCallback(
     (orderBookData: OrderBookData, resetConnection: () => void) => {
@@ -105,12 +122,19 @@ export default function useOrderBook() {
 
       const orderBookData = response.data;
       if (orderBookData.type === "snapshot") {
+        console.log("orderBookData", orderBookData);
         handleSnapshot(orderBookData);
       } else if (orderBookData.type === "delta") {
         handleDelta(orderBookData, resetAndConnect);
       }
     },
   });
+
+  useEffect(() => {
+    return () => {
+      throttledUpdate.cancel();
+    };
+  }, [throttledUpdate]);
 
   const mockDelay = useCallback(() => {
     if (preSeqNumRef.current) {

@@ -1,5 +1,5 @@
 import { Fragment, memo } from "react";
-import type { ColumnConfig } from "@/types";
+import type { ColumnConfig, FlashColorType } from "@/types";
 import { isEqual } from "lodash";
 
 export default memo(
@@ -7,19 +7,21 @@ export default memo(
     columns,
     row,
     rowIndex,
+    flashColor = "red" as FlashColorType,
   }: {
     columns: ColumnConfig[];
     row: Record<string, string>;
     rowIndex: number;
+    flashColor?: FlashColorType;
   }) {
     return (
       <Fragment>
         {rowIndex > 0 && <tr className="h-1" />}
-        <tr>
+        <tr className={`${`flash-animation-${flashColor}`}`}>
           {columns.map((column) => (
             <td
               key={`${rowIndex}-${column.key}`}
-              className="truncate text-lg font-bold h-7.5"
+              className={`truncate text-lg font-bold h-7.5`}
               style={{
                 maxWidth: column.width,
                 textAlign: column.align,
@@ -36,7 +38,6 @@ export default memo(
   (prevProps, nextProps) => {
     const { row: prevRow } = prevProps;
     const { row: nextRow } = nextProps;
-
     return isEqual(prevRow, nextRow);
   }
 );
