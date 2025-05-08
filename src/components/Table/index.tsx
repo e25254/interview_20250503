@@ -1,13 +1,20 @@
 import type { ColumnConfig, FlashColorType } from "@/types";
 import { memo } from "react";
-import TableRow from "../TableRow";
 import isEqual from "lodash/isEqual";
 
 type TableProps = {
   columns: ColumnConfig[];
   data: Record<string, string>[];
   isShowColumns?: boolean;
-  flashColor?: FlashColorType;
+  themeColor?: FlashColorType;
+  renderRow: (
+    row: Record<string, string>,
+    rowIndex: number,
+    props: {
+      columns: ColumnConfig[];
+      themeColor: FlashColorType;
+    }
+  ) => React.ReactNode;
 };
 
 export default memo(
@@ -32,7 +39,8 @@ export default memo(
       },
     ],
     isShowColumns = true,
-    flashColor = "red" as FlashColorType,
+    themeColor = "red" as FlashColorType,
+    renderRow,
   }: TableProps) {
     return (
       <table className="w-full border-collapse table-fixed">
@@ -59,15 +67,7 @@ export default memo(
         <tbody>
           {isShowColumns && <tr className="h-2" />}
           {data.map((row, rowIndex) => {
-            return (
-              <TableRow
-                key={row.price}
-                columns={columns}
-                row={row}
-                rowIndex={rowIndex}
-                flashColor={flashColor}
-              />
-            );
+            return renderRow(row, rowIndex, { columns, themeColor });
           })}
         </tbody>
       </table>

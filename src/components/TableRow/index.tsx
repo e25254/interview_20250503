@@ -7,17 +7,17 @@ export default memo(
     columns,
     row,
     rowIndex,
-    flashColor = "red" as FlashColorType,
+    themeColor = "red" as FlashColorType,
   }: {
     columns: ColumnConfig[];
     row: Record<string, string>;
     rowIndex: number;
-    flashColor?: FlashColorType;
+    themeColor?: FlashColorType;
   }) {
     return (
       <Fragment>
         {rowIndex > 0 && <tr className="h-1" />}
-        <tr className={`${`flash-animation-${flashColor}`}`}>
+        <tr className={`${`flash-animation-${themeColor}`}`}>
           {columns.map((column) => (
             <td
               key={`${rowIndex}-${column.key}`}
@@ -28,7 +28,7 @@ export default memo(
               }}
               title={row[column.key]}
             >
-              {row[column.key]}
+              <div>{row[column.key]}</div>
             </td>
           ))}
         </tr>
