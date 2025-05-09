@@ -21,7 +21,7 @@ export default function useOrderBook() {
     asks: [],
   });
 
-  const THROTTLE_DELAY = 100;
+  const THROTTLE_DELAY = 200;
 
   const rawOrderBookRef = useRef<{
     bids: Map<string, string>;
