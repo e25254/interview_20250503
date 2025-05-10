@@ -4,8 +4,6 @@ interface SkeletonProps {
 
 export default function Skeleton({ className }: SkeletonProps) {
   return (
-    <div
-      className={`w-full animate-pulse rounded-md bg-now-price-equal ${className}`}
-    />
+    <div className={`w-full animate-pulse  bg-now-price-equal ${className}`} />
   );
 }
