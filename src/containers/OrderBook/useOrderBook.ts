@@ -116,7 +116,7 @@ export default function useOrderBook() {
 
   const checkIsCrossed = useCallback(
     (bids: OrderBookEntry[], asks: OrderBookEntry[]) => {
-      if (bids[0][0] > asks[asks.length - 1][0]) {
+      if (Number(bids[0][0]) > Number(asks[asks.length - 1][0])) {
         return true;
       }
       return false;
