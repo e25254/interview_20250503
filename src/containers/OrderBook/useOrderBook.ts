@@ -45,99 +45,6 @@ export default function useOrderBook() {
     asks: new Map(),
   });
 
-  const processOrderBookEntries = useCallback(
-    (entries: OrderBookEntry[] | undefined, orderType: "bids" | "asks") => {
-      if (!entries) return;
-      entries.forEach(([price, size]) => {
-        if (Number(size) === 0) {
-          rawOrderBookRef.current[orderType].delete(price);
-        } else {
-          rawOrderBookRef.current[orderType].set(price, size);
-        }
-      });
-    },
-    []
-  );
-
-  const throttledUpdateCurrentPrice = useMemo(
-    () =>
-      throttle(
-        () => setCurrentPrice(tempCurrentPriceRef.current),
-        THROTTLE_DELAY
-      ),
-    [THROTTLE_DELAY]
-  );
-
-  const throttledUpdateSubscribeData = useMemo(
-    () =>
-      throttle(() => {
-        setSubscribeData(tempSubscribeData.current);
-      }, THROTTLE_DELAY),
-    [THROTTLE_DELAY]
-  );
-
-  const handleSnapshot = useCallback(
-    (OrderBookSubscribeData: OrderBookSubscribeData) => {
-      if (OrderBookSubscribeData.seqNum)
-        preSeqNumRef.current = OrderBookSubscribeData.seqNum;
-
-      if (OrderBookSubscribeData.bids) {
-        rawOrderBookRef.current.bids.clear();
-        processOrderBookEntries(OrderBookSubscribeData.bids, "bids");
-      }
-
-      if (OrderBookSubscribeData.asks) {
-        rawOrderBookRef.current.asks.clear();
-        processOrderBookEntries(OrderBookSubscribeData.asks, "asks");
-      }
-
-      tempSubscribeData.current = formatSnapshotData(OrderBookSubscribeData);
-      throttledUpdateSubscribeData();
-    },
-    [processOrderBookEntries, throttledUpdateSubscribeData]
-  );
-
-  const updateOrderBook = useCallback(() => {
-    const bids: OrderBookEntry[] = Array.from(rawOrderBookRef.current.bids)
-      .map(([price, size]): OrderBookEntry => [price, size])
-      .sort((a, b) => Number(b[0]) - Number(a[0]));
-    const asks: OrderBookEntry[] = Array.from(rawOrderBookRef.current.asks)
-      .map(([price, size]): OrderBookEntry => [price, size])
-      .sort((a, b) => Number(b[0]) - Number(a[0]));
-
-    tempSubscribeData.current = formatSnapshotData({
-      type: "snapshot",
-      bids,
-      asks,
-    });
-    throttledUpdateSubscribeData();
-  }, [throttledUpdateSubscribeData]);
-
-  const handleDelta = useCallback(
-    (
-      OrderBookSubscribeData: OrderBookSubscribeData,
-      resetConnection: () => void
-    ) => {
-      if (
-        preSeqNumRef.current &&
-        OrderBookSubscribeData.prevSeqNum !== preSeqNumRef.current
-      ) {
-        resetConnection();
-        return;
-      }
-
-      if (OrderBookSubscribeData.seqNum)
-        preSeqNumRef.current = OrderBookSubscribeData.seqNum;
-
-      processOrderBookEntries(OrderBookSubscribeData.bids, "bids");
-      processOrderBookEntries(OrderBookSubscribeData.asks, "asks");
-
-      // 更新訂單簿顯示
-      updateOrderBook();
-    },
-    [updateOrderBook, processOrderBookEntries]
-  );
-
   const { resetAndConnect } = useWebSocketConnect({
     url: "wss://ws.btse.com/ws/oss/futures",
     subscribeObj: {
@@ -175,6 +82,115 @@ export default function useOrderBook() {
       throttledUpdateCurrentPrice();
     },
   });
+
+  const processOrderBookEntries = useCallback(
+    (entries: OrderBookEntry[] | undefined, orderType: "bids" | "asks") => {
+      if (!entries) return;
+      entries.forEach(([price, size]) => {
+        if (Number(size) === 0) {
+          rawOrderBookRef.current[orderType].delete(price);
+        } else {
+          rawOrderBookRef.current[orderType].set(price, size);
+        }
+      });
+    },
+    []
+  );
+
+  const throttledUpdateCurrentPrice = useMemo(
+    () =>
+      throttle(
+        () => setCurrentPrice(tempCurrentPriceRef.current),
+        THROTTLE_DELAY
+      ),
+    [THROTTLE_DELAY]
+  );
+
+  const throttledUpdateSubscribeData = useMemo(
+    () =>
+      throttle(() => {
+        setSubscribeData(tempSubscribeData.current);
+      }, THROTTLE_DELAY),
+    [THROTTLE_DELAY]
+  );
+
+  const checkIsCrossed = useCallback(
+    (bids: OrderBookEntry[], asks: OrderBookEntry[]) => {
+      if (bids[0][0] > asks[asks.length - 1][0]) {
+        return true;
+      }
+      return false;
+    },
+    []
+  );
+
+  const handleSnapshot = useCallback(
+    (OrderBookSubscribeData: OrderBookSubscribeData) => {
+      if (OrderBookSubscribeData.seqNum)
+        preSeqNumRef.current = OrderBookSubscribeData.seqNum;
+
+      if (OrderBookSubscribeData.bids) {
+        rawOrderBookRef.current.bids.clear();
+        processOrderBookEntries(OrderBookSubscribeData.bids, "bids");
+      }
+
+      if (OrderBookSubscribeData.asks) {
+        rawOrderBookRef.current.asks.clear();
+        processOrderBookEntries(OrderBookSubscribeData.asks, "asks");
+      }
+
+      tempSubscribeData.current = formatSnapshotData(OrderBookSubscribeData);
+      throttledUpdateSubscribeData();
+    },
+    [processOrderBookEntries, throttledUpdateSubscribeData]
+  );
+
+  const updateOrderBook = useCallback(() => {
+    const bids: OrderBookEntry[] = Array.from(rawOrderBookRef.current.bids)
+      .map(([price, size]): OrderBookEntry => [price, size])
+      .sort((a, b) => Number(b[0]) - Number(a[0]));
+    const asks: OrderBookEntry[] = Array.from(rawOrderBookRef.current.asks)
+      .map(([price, size]): OrderBookEntry => [price, size])
+      .sort((a, b) => Number(b[0]) - Number(a[0]));
+
+    const isCrossed = checkIsCrossed(bids, asks);
+    if (isCrossed) {
+      resetAndConnect();
+      return;
+    }
+
+    tempSubscribeData.current = formatSnapshotData({
+      type: "snapshot",
+      bids,
+      asks,
+    });
+    throttledUpdateSubscribeData();
+  }, [throttledUpdateSubscribeData, checkIsCrossed, resetAndConnect]);
+
+  const handleDelta = useCallback(
+    (
+      OrderBookSubscribeData: OrderBookSubscribeData,
+      resetConnection: () => void
+    ) => {
+      if (
+        preSeqNumRef.current &&
+        OrderBookSubscribeData.prevSeqNum !== preSeqNumRef.current
+      ) {
+        resetConnection();
+        return;
+      }
+
+      if (OrderBookSubscribeData.seqNum)
+        preSeqNumRef.current = OrderBookSubscribeData.seqNum;
+
+      processOrderBookEntries(OrderBookSubscribeData.bids, "bids");
+      processOrderBookEntries(OrderBookSubscribeData.asks, "asks");
+
+      // 更新訂單簿顯示
+      updateOrderBook();
+    },
+    [updateOrderBook, processOrderBookEntries]
+  );
 
   useEffect(() => {
     return () => {
