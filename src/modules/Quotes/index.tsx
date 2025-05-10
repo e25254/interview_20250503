@@ -4,7 +4,8 @@ import NowPrice from "@/components/NowPrice";
 import type {
   ColumnConfig,
   OrderBookColumn,
-  OrderBookFormatData,
+  OrderBookFormatNowPriceData,
+  OrderBookFormatSubscribeData,
 } from "@/types";
 import OrderBookTableRow from "@/components/OrderBookTableRow";
 
@@ -15,16 +16,17 @@ const columns: ColumnConfig[] = [
 ];
 
 type QuotesProps = {
-  data: OrderBookFormatData;
+  subscribeData: OrderBookFormatSubscribeData;
+  currentPrice: OrderBookFormatNowPriceData;
 };
 
-export default function Quotes({ data }: QuotesProps) {
+export default function Quotes({ subscribeData, currentPrice }: QuotesProps) {
   return (
     <Stack className="gap-2">
       <Stack className="px-hor-container">
         <Table
           columns={columns}
-          data={data.asks}
+          data={subscribeData.asks}
           themeColor="red"
           renderRow={(row, rowIndex, { columns, themeColor }) => (
             <OrderBookTableRow
@@ -37,11 +39,11 @@ export default function Quotes({ data }: QuotesProps) {
           )}
         />
       </Stack>
-      <NowPrice price={100} />
+      <NowPrice priceObj={currentPrice} />
       <Stack className="px-hor-container">
         <Table
           columns={columns}
-          data={data.bids}
+          data={subscribeData.bids}
           isShowColumns={false}
           themeColor="green"
           renderRow={(row, rowIndex, { columns, themeColor }) => (

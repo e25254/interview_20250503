@@ -1,7 +1,7 @@
 import { formatNumber } from "@/utils";
-import type { OrderBookData } from "@/types/orderBook";
+import type { OrderBookSubscribeData } from "@/types/orderBook";
 
-export const formatSnapshotData = (data: OrderBookData) => {
+export const formatSnapshotData = (data: OrderBookSubscribeData) => {
   const { bids, asks } = data;
   if (!bids || !asks) return { bids: [], asks: [] };
   const pickAsks = asks.slice(asks.length - 8, asks.length).reverse();

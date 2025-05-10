@@ -2,6 +2,7 @@
 :root {
   --color-gray-100: #f0f4f8;
   --color-gray-200: #8698aa;
+  --color-blue-100: rgba(134, 152, 170, 0.12);
   --color-blue-700: #1e3059;
   --color-blue-900: #131b29;
   --color-green-300: rgba(16, 186, 104, 0.12);
@@ -24,6 +25,7 @@
   --color-sell-size-bar: var(--color-red-300);
   --color-flash-green: var(--color-green-400);
   --color-flash-red: var(--color-red-400);
+  --color-now-price-equal: var(--color-blue-100);
   --spacing-hor-container: var(--spacing-hor-container);
 }
 

@@ -3,20 +3,34 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatSnapshotData } from "./utils";
 import throttle from "lodash/throttle";
 import type {
-  OrderBookData,
-  OrderBookFormatData,
+  OrderBookSubscribeData,
+  OrderBookFormatSubscribeData,
   OrderBookEntry,
+  OrderBookNewPriceData,
+  OrderBookFormatNowPriceData,
 } from "@/types";
 export default function useOrderBook() {
   const symbol = "BTCPFC";
   const grouping = "0";
   const preSeqNumRef = useRef<number | null>(null);
-  const [subscribeData, setSubscribeData] = useState<OrderBookFormatData>({
-    bids: [],
-    asks: [],
+  const [currentPrice, setCurrentPrice] = useState<OrderBookFormatNowPriceData>(
+    {
+      price: null,
+      timestamp: null,
+    }
+  );
+  const [subscribeData, setSubscribeData] =
+    useState<OrderBookFormatSubscribeData>({
+      bids: [],
+      asks: [],
+    });
+
+  const tempCurrentPriceRef = useRef<OrderBookFormatNowPriceData>({
+    price: null,
+    timestamp: null,
   });
 
-  const tempDataRef = useRef<OrderBookFormatData>({
+  const tempSubscribeData = useRef<OrderBookFormatSubscribeData>({
     bids: [],
     asks: [],
   });
@@ -45,32 +59,42 @@ export default function useOrderBook() {
     []
   );
 
-  const throttledUpdate = useMemo(
+  const throttledUpdateCurrentPrice = useMemo(
+    () =>
+      throttle(
+        () => setCurrentPrice(tempCurrentPriceRef.current),
+        THROTTLE_DELAY
+      ),
+    [THROTTLE_DELAY]
+  );
+
+  const throttledUpdateSubscribeData = useMemo(
     () =>
       throttle(() => {
-        setSubscribeData(tempDataRef.current);
+        setSubscribeData(tempSubscribeData.current);
       }, THROTTLE_DELAY),
     [THROTTLE_DELAY]
   );
 
   const handleSnapshot = useCallback(
-    (orderBookData: OrderBookData) => {
-      if (orderBookData.seqNum) preSeqNumRef.current = orderBookData.seqNum;
+    (OrderBookSubscribeData: OrderBookSubscribeData) => {
+      if (OrderBookSubscribeData.seqNum)
+        preSeqNumRef.current = OrderBookSubscribeData.seqNum;
 
-      if (orderBookData.bids) {
+      if (OrderBookSubscribeData.bids) {
         rawOrderBookRef.current.bids.clear();
-        processOrderBookEntries(orderBookData.bids, "bids");
+        processOrderBookEntries(OrderBookSubscribeData.bids, "bids");
       }
 
-      if (orderBookData.asks) {
+      if (OrderBookSubscribeData.asks) {
         rawOrderBookRef.current.asks.clear();
-        processOrderBookEntries(orderBookData.asks, "asks");
+        processOrderBookEntries(OrderBookSubscribeData.asks, "asks");
       }
 
-      tempDataRef.current = formatSnapshotData(orderBookData);
-      throttledUpdate();
+      tempSubscribeData.current = formatSnapshotData(OrderBookSubscribeData);
+      throttledUpdateSubscribeData();
     },
-    [processOrderBookEntries, throttledUpdate]
+    [processOrderBookEntries, throttledUpdateSubscribeData]
   );
 
   const updateOrderBook = useCallback(() => {
@@ -81,28 +105,32 @@ export default function useOrderBook() {
       .map(([price, size]): OrderBookEntry => [price, size])
       .sort((a, b) => Number(b[0]) - Number(a[0]));
 
-    tempDataRef.current = formatSnapshotData({
+    tempSubscribeData.current = formatSnapshotData({
       type: "snapshot",
       bids,
       asks,
     });
-    throttledUpdate();
-  }, [throttledUpdate]);
+    throttledUpdateSubscribeData();
+  }, [throttledUpdateSubscribeData]);
 
   const handleDelta = useCallback(
-    (orderBookData: OrderBookData, resetConnection: () => void) => {
+    (
+      OrderBookSubscribeData: OrderBookSubscribeData,
+      resetConnection: () => void
+    ) => {
       if (
         preSeqNumRef.current &&
-        orderBookData.prevSeqNum !== preSeqNumRef.current
+        OrderBookSubscribeData.prevSeqNum !== preSeqNumRef.current
       ) {
         resetConnection();
         return;
       }
 
-      if (orderBookData.seqNum) preSeqNumRef.current = orderBookData.seqNum;
+      if (OrderBookSubscribeData.seqNum)
+        preSeqNumRef.current = OrderBookSubscribeData.seqNum;
 
-      processOrderBookEntries(orderBookData.bids, "bids");
-      processOrderBookEntries(orderBookData.asks, "asks");
+      processOrderBookEntries(OrderBookSubscribeData.bids, "bids");
+      processOrderBookEntries(OrderBookSubscribeData.asks, "asks");
 
       // 更新訂單簿顯示
       updateOrderBook();
@@ -117,24 +145,42 @@ export default function useOrderBook() {
       args: [`update:${symbol}_${grouping}`],
     },
     onMessage: (data: unknown) => {
-      const response = data as { data?: OrderBookData };
+      const response = data as { data?: OrderBookSubscribeData };
       if (!response.data) return;
 
-      const orderBookData = response.data;
-      if (orderBookData.type === "snapshot") {
-        console.log("orderBookData", orderBookData);
-        handleSnapshot(orderBookData);
-      } else if (orderBookData.type === "delta") {
-        handleDelta(orderBookData, resetAndConnect);
+      const OrderBookSubscribeData = response.data;
+      if (OrderBookSubscribeData.type === "snapshot") {
+        handleSnapshot(OrderBookSubscribeData);
+      } else if (OrderBookSubscribeData.type === "delta") {
+        handleDelta(OrderBookSubscribeData, resetAndConnect);
       }
+    },
+  });
+
+  useWebSocketConnect({
+    url: "wss://ws.btse.com/ws/futures",
+    subscribeObj: {
+      op: "subscribe",
+      args: [`tradeHistoryApi:${symbol}`],
+    },
+    onMessage: (data: unknown) => {
+      const response = data as { data?: OrderBookNewPriceData[] };
+      if (!response.data) return;
+      const { data: tradeData } = response;
+      const { price, timestamp } = tradeData[0];
+      tempCurrentPriceRef.current = {
+        price: price,
+        timestamp: timestamp,
+      };
+      throttledUpdateCurrentPrice();
     },
   });
 
   useEffect(() => {
     return () => {
-      throttledUpdate.cancel();
+      throttledUpdateSubscribeData.cancel();
     };
-  }, [throttledUpdate]);
+  }, [throttledUpdateSubscribeData]);
 
   const mockDelay = useCallback(() => {
     if (preSeqNumRef.current) {
@@ -142,5 +188,5 @@ export default function useOrderBook() {
     }
   }, []);
 
-  return { subscribeData, mockDelay };
+  return { subscribeData, mockDelay, currentPrice };
 }
