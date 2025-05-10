@@ -15,7 +15,7 @@ export default memo(function TdTotal({
   themeColor: FlashColorType;
 }) {
   return (
-    <Stack className="relative">
+    <Stack className="relative w-[calc(100%-8px)] ml-auto">
       <p className="relative z-10">{row.total}</p>
       <div
         className={`${PERCENT_BAR_COLORS[themeColor]} absolute bottom-0 right-0 h-full top-0 z-1`}

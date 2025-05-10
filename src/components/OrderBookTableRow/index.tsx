@@ -28,19 +28,23 @@ export default memo(
   }) {
     return (
       <Fragment>
-        {rowIndex > 0 && <tr className="h-1" />}
-        <tr className={`flash-animation-${themeColor}`}>
+        <tr className={`flash-animation-${themeColor} hover:bg-row-hover`}>
           {columns.map((column, columnIndex) => {
             const Component =
               TdComponents[column.key as keyof typeof TdComponents];
             return (
               <td
                 key={`${rowIndex}-${column.key}`}
-                className="truncate text-lg font-bold h-7.5"
+                className="truncate text-lg font-bold h-[33px]"
                 style={{
                   maxWidth: column.width,
                   textAlign: column.align,
-                  paddingLeft: columnIndex > 0 ? "8px" : "0",
+                  paddingLeft:
+                    columnIndex === 0 ? "var(--spacing-hor-container)" : "",
+                  paddingRight:
+                    columnIndex === columns.length - 1
+                      ? "var(--spacing-hor-container)"
+                      : "0",
                 }}
                 title={row[column.key as keyof OrderBookColumn]}
               >

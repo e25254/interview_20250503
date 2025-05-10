@@ -52,11 +52,19 @@ export default memo(
         {isShowColumns && (
           <thead>
             <tr>
-              {columns.map((column) => (
+              {columns.map((column, columnIndex) => (
                 <th
                   key={column.key}
                   className="truncate text-xl text-quote-head font-normal"
-                  style={{ textAlign: column.align }}
+                  style={{
+                    textAlign: column.align,
+                    paddingLeft:
+                      columnIndex === 0 ? "var(--spacing-hor-container)" : "0",
+                    paddingRight:
+                      columnIndex === columns.length - 1
+                        ? "var(--spacing-hor-container)"
+                        : "0",
+                  }}
                 >
                   {column.title}
                 </th>
