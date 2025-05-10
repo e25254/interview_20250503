@@ -10,17 +10,14 @@ export type OrderBookData = {
   timestamp?: number;
 };
 
+export type OrderBookColumn = {
+  price: string;
+  size: string;
+  total: string;
+  percent: string;
+};
+
 export type OrderBookFormatData = {
-  bids: {
-    price: string;
-    size: string;
-    total: string;
-    percent: string;
-  }[];
-  asks: {
-    price: string;
-    size: string;
-    total: string;
-    percent: string;
-  }[];
+  bids: OrderBookColumn[];
+  asks: OrderBookColumn[];
 };

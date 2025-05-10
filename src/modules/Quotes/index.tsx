@@ -1,8 +1,12 @@
 import Table from "@/components/Table";
 import Stack from "@/components/Stack";
 import NowPrice from "@/components/NowPrice";
-import type { ColumnConfig, OrderBookFormatData } from "@/types";
-import TableRow from "@/components/TableRow";
+import type {
+  ColumnConfig,
+  OrderBookColumn,
+  OrderBookFormatData,
+} from "@/types";
+import OrderBookTableRow from "@/components/OrderBookTableRow";
 
 const columns: ColumnConfig[] = [
   { key: "price", title: "Price(USD)", width: "30%", align: "left" },
@@ -23,9 +27,9 @@ export default function Quotes({ data }: QuotesProps) {
           data={data.asks}
           themeColor="red"
           renderRow={(row, rowIndex, { columns, themeColor }) => (
-            <TableRow
+            <OrderBookTableRow
               key={row.price}
-              row={row}
+              row={row as OrderBookColumn}
               rowIndex={rowIndex}
               columns={columns}
               themeColor={themeColor}
@@ -41,9 +45,9 @@ export default function Quotes({ data }: QuotesProps) {
           isShowColumns={false}
           themeColor="green"
           renderRow={(row, rowIndex, { columns, themeColor }) => (
-            <TableRow
+            <OrderBookTableRow
               key={row.price}
-              row={row}
+              row={row as OrderBookColumn}
               rowIndex={rowIndex}
               columns={columns}
               themeColor={themeColor}
