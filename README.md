@@ -1,54 +1,107 @@
-# React + TypeScript + Vite
+# React + TypeScript + Vite 專案
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+這是一個使用 [React](https://react.dev) + [TypeScript](https://www.typescriptlang.org/) + [Vite](https://vitejs.dev) 建立的現代化前端專案。
 
-Currently, two official plugins are available:
+## 線上演示
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+本專案已部署在 GCP 上，您可以通過以下網址訪問：
 
-## Expanding the ESLint configuration
+[https://interview20250503.jerryjie.online/](https://interview20250503.jerryjie.online/)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 啟動專案
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### 使用 Docker 啟動
+
+#### 前提條件
+
+-   已安裝 [Docker](https://www.docker.com/get-started)
+
+#### 從 Docker Hub 拉取映像
+
+您可以直接從 Docker Hub 拉取預構建的映像：
+
+```bash
+docker pull e25254/interview_20250503:v1.0.0
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+然後運行容器：
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+docker run -p 3000:3000 e25254/interview_20250503:v1.0.0
 ```
+
+#### 本地構建映像
+
+1. **構建 Docker 映像**
+
+    ```bash
+    docker build -t interview-app .
+    ```
+
+2. **運行容器**
+
+    ```bash
+    docker run -p 3000:3000 interview-app
+    ```
+
+3. **訪問應用**
+
+    打開瀏覽器訪問 [http://localhost:3000](http://localhost:3000)
+
+### 不使用 Docker 啟動
+
+#### 前提條件
+
+-   已安裝 [Node.js](https://nodejs.org/) (版本為`v20.x`)
+-   已安裝 npm (通常隨 Node.js 一起安裝)
+
+#### 開發環境
+
+1. **安裝依賴**
+
+    ```bash
+    npm install
+    ```
+
+2. **啟動開發服務器**
+
+    ```bash
+    npm run dev
+    ```
+
+3. **訪問應用**
+
+    打開瀏覽器訪問 [http://localhost:3000](http://localhost:3000)
+
+#### 生產環境
+
+1. **安裝依賴**
+
+    ```bash
+    npm install
+    ```
+
+2. **構建應用**
+
+    ```bash
+    npm run build
+    ```
+
+3. **預覽生產構建**
+
+    ```bash
+    npm run preview
+    ```
+
+4. **訪問應用**
+
+    打開瀏覽器訪問 [http://localhost:3000](http://localhost:3000)
+
+## 技術實作亮點
+
+-   **響應式設計**：採用 Tailwind CSS 實現精細的響應式布局，提供跨裝置的一致視覺體驗和極佳的用戶交互
+-   **優化構建流程**：應用 Docker 多階段構建技術，實現輕量化部署並提升 CI/CD 管道效率
+-   **伺服器配置**：精心調整的 Nginx 設置，提供靜態資源緩存、GZIP 壓縮及安全性增強
+-   **模組化架構**：依照功能將代碼分為 components、containers、modules 等層級，提高可維護性和可擴展性
+-   **WebSocket 效能優化**：實作資料 throttle 機制，有效控制重新渲染頻率，顯著降低資料閃爍問題，優化使用者體驗
+-   **交易機制智能優化**：精確遵循 API 文檔規範，在交叉交易金額變動時實現智能重新訂閱機制，確保數據準確性與實時性
